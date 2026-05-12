@@ -432,8 +432,8 @@ function obrigarCampoQuandoSim(simRadio, naoRadio, campo) {
 
 // 👇 chamadas ficam FORA da função
 obrigarCampoQuandoSim(
-    document.getElementById("sep_sim"),
     document.getElementById("sep_nao"),
+    document.getElementById("sep_sim"),
     document.getElementById("razao")
 );
 
@@ -514,7 +514,8 @@ const dados = [
   { municipio: "Barcelos", endereco: "Rua Efigênio Sales, s/nº" },
   { municipio: "Presidente Figueiredo", endereco: "Avenida Padre Calleri, 233, Tancredo Neves" },
   { municipio: "Urucurituba", endereco: "Estrada do Arrozal, s/n" },
-  { municipio: "Parintins", endereco: "Av. Nações Unidas, nº 1842, Bairro Centro" },
+  { municipio: "Parintins", endereco: "Av. Nações Unidas, nº 1842, Bairro Centro"},
+  { municipio: "Parintins (Delegacia de Polícia)", endereco: "Rua Irmã Cristine, s/nº, bairro Itaúna II"},
   { municipio: "Novo Aripuanã", endereco: "Estrada NAP 01, s/n° - Bairro da TV" },
   { municipio: "Coari", endereco: "Rua Jonatatas Pedrosa, s/n, Bairro Santa Efigênia" },
   { municipio: "Tefé", endereco: "Estrada da Agrovila, KM 05" },
@@ -642,3 +643,133 @@ inputNome.addEventListener("input", () => {
     inputEmail.readOnly = false;
   }
 });
+
+
+controlarCampos(
+  document.getElementById("fuga_sim"),
+  document.getElementById("fuga_nao"),
+  [
+    document.getElementById("fuga_detalhes"),
+    document.querySelector('textarea[name="circunstancias"]')
+  ]
+);
+controlarCampos(
+  document.querySelector('input[name="acompanhou"][value="Sim"]'),
+  document.querySelector('input[name="acompanhou"][value="Não"]'),
+  [
+    document.querySelector('input[name="quem_acompanhou"]'),
+    document.querySelector('input[name="cargo_acompanhante"]')
+  ]
+);
+controlarCampos(
+  document.querySelector('input[name="fonar"][value="Sim"]'),
+  document.querySelector('input[name="fonar"][value="Não"]'),
+  [
+    document.querySelector('textarea[name="fonar_prov"]')
+  ]
+);
+controlarCampos(
+  document.querySelector('input[name="rogeria"][value="Sim"]'),
+  document.querySelector('input[name="rogeria"][value="Não"]'),
+  [
+    document.querySelector('textarea[name="rogeria_prov"]')
+  ]
+);
+controlarCampos(
+  document.querySelector('input[name="banho_sol"][value="Sim"]'),
+  document.querySelector('input[name="banho_sol"][value="Não"]'),
+  [
+    document.querySelector('select[name="freq_banho"]')
+  ]
+);
+controlarCampos(
+  document.querySelector('input[name="visita_familiar"][value="Sim"]'),
+  document.querySelector('input[name="visita_familiar"][value="Não"]'),
+  [
+    document.querySelector('select[name="freq_visitas"]')
+  ]
+);
+controlarCampos(
+  document.querySelector('input[name="visita_intima"][value="Sim"]'),
+  document.querySelector('input[name="visita_intima"][value="Não"]'),
+  [
+    document.querySelector('select[name="freq_visitas_intimas"]')
+  ]
+);
+controlarCampos(
+  document.querySelector('input[name="religiosa"][value="Sim"]'),
+  document.querySelector('input[name="religiosa"][value="Não"]'),
+  [
+    document.querySelector('select[name="freq_religiosa"]')
+  ]
+);
+controlarCampos(
+  document.querySelector('input[name="revista"][value="Sim"]'),
+  document.querySelector('input[name="revista"][value="Não"]'),
+  [
+    document.querySelector('input[name="equipamentos"]')
+  ]
+);
+controlarCampos(
+  document.querySelector('input[name="video"][value="Sim"]'),
+  document.querySelector('input[name="video"][value="Não"]'),
+  [
+     document.querySelector('select[name="abrangencia"]'),
+    document.querySelector('textarea[name="armazenamento"]')
+  ]
+);
+controlarCampos(
+  document.querySelector('input[name="tornozeleira"][value="Sim"]'),
+  document.querySelector('input[name="tornozeleira"][value="Não"]'),
+  [
+   
+    document.querySelector('input[name="justificativa"]')
+  ]
+);
+controlarCampos(
+  document.querySelector('input[name="reclamacoes"][value="Sim"]'),
+  document.querySelector('input[name="reclamacoes"][value="Não"]'),
+  [
+     document.querySelector('textarea[name="quais_reclam"]'),
+    
+  ]
+);
+controlarCampos(
+  document.querySelector('input[name="impo"][value="Sim"]'),
+  document.querySelector('input[name="impo"][value="Não"]'),
+  [
+     document.querySelector('textarea[name="det_impo"]'),
+    
+  ]
+);
+controlarCampos(
+  document.querySelector('input[name="audiencia"][value="Sim"]'),
+  document.querySelector('input[name="audiencia"][value="Não"]'),
+  [
+     document.querySelector('textarea[name="violacao"]'),
+     document.querySelector('select[name="sigilo"]')
+  ]
+);
+function controlarCampos(simRadio, naoRadio, campos) {
+
+  function atualizar() {
+
+    const ativo = simRadio.checked;
+
+    campos.forEach(campo => {
+
+      campo.disabled = !ativo;
+
+      campo.required = ativo;
+
+      if (!ativo) {
+        campo.value = "";
+      }
+    });
+  }
+
+  simRadio.addEventListener("change", atualizar);
+  naoRadio.addEventListener("change", atualizar);
+
+  atualizar();
+}
