@@ -1,0 +1,181 @@
+body{
+    margin:0;
+    padding:25px;
+    font-family:Arial, sans-serif;
+    background:#f4f6f9;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+    background:#fff;
+    padding:30px;
+    border-radius:12px;
+    box-shadow:0 4px 18px rgba(0,0,0,0.08);
+}
+
+.header{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.header img{
+    width:100%;
+    max-height:140px;
+    object-fit:contain;
+}
+
+h1{
+    color:#0b5ed7;
+    font-size:22px;
+}
+
+.step{ display:none; }
+.step.active{ display:block; }
+
+h2{
+    color:#0b5ed7;
+    margin-bottom:18px;
+    font-size:18px;
+}
+
+.field{
+    margin-bottom:14px;
+    background:#f8f9fa;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid #e6e6e6;
+}
+
+label{
+    font-weight:600;
+    display:block;
+    margin-bottom:6px;
+}
+
+input, textarea, select{
+    width:100%;
+    padding:10px;
+    border-radius:6px;
+    border:1px solid #ccc;
+    box-sizing:border-box;
+}
+
+textarea{ min-height:90px; }
+
+.radio-group{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.nav{
+    display:flex;
+    justify-content:space-between;
+    margin-top:20px;
+}
+
+button{
+    padding:12px 18px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.next{ background:#0b5ed7; color:#fff; }
+.prev{ background:#6c757d; color:#fff; }
+
+.submit{
+    background:#198754;
+    color:#fff;
+    width:100%;
+    margin-top:15px;
+    display:none;
+}
+
+.success{
+    display:none;
+    margin-top:15px;
+    background:#d1e7dd;
+    padding:12px;
+    border-radius:8px;
+    text-align:center;
+}
+/* MENU */
+.menu-btn{
+    position:fixed;
+    top:15px;
+    left:15px;
+    z-index:1001;
+    background:#0b5ed7;
+    color:white;
+    border:none;
+    padding:12px 15px;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.sidebar{
+    position:fixed;
+    top:0;
+    left:-280px;
+    width:260px;
+    height:100%;
+    background:#fff;
+    box-shadow:2px 0 10px rgba(0,0,0,0.1);
+    padding:20px;
+    transition:.3s;
+    z-index:1000;
+    overflow:auto;
+}
+
+.sidebar.active{
+    left:0;
+}
+
+.sidebar h3{
+    margin-top:40px;
+    color:#0b5ed7;
+}
+
+.sidebar button{
+    width:100%;
+    text-align:left;
+    margin-bottom:10px;
+    background:#f4f6f9;
+    color:#333;
+    border:1px solid #ddd;
+}
+
+.sidebar button:hover{
+    background:#0b5ed7;
+    color:white;
+}
+.obrigatorio{
+    color: red;
+    font-weight: bold;
+}
+
+/* campo normal */
+.field {
+  padding: 10px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  transition: 0.3s;
+}
+
+/* só ativa depois do submit */
+.form-enviado .field:has(input:required:invalid),
+.form-enviado .field:has(textarea:required:invalid),
+.form-enviado .field:has(select:required:invalid) {
+  border-color: red;
+  background: #ffe5e5;
+}
+
+input:disabled,
+textarea:disabled{
+  background:#f1f1f1;
+  opacity:.7;
+  cursor:not-allowed;
+}
