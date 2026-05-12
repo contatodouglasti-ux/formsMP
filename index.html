@@ -42,14 +42,14 @@
 <h2>1 – Identificação</h2>
 
 <div class="field">
-  <label>Membro Responsável</label>
-  <input type="text" id="membro_responsave" name="membro_responsave"  list="listaNomes" autocomplete="off">
+  <label>Responsável</label>
+  <input type="text" id="nome" name="membro_responsavel" list="listaNomes" autocomplete="off">
   <datalist id="listaNomes"></datalist>
 </div>
 
 <div class="field">
   <label>Email</label>
-  <input type="email" id="email" name="email" >
+  <input type="email" id="email" name="email">
 </div>
 </div>
 
@@ -68,7 +68,13 @@
   >
   <datalist id="listaMunicipios"></datalist>
 </div>
-
+<div class="field">
+<label>Estabelecimento<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="estabelecimento" value="Unidade Prisional" required> Unidade Prisional</label>
+<label><input type="radio" name="estabelecimento" value="Delegacia de Polícia" required> Delegacia de Polícia</label>
+</div>
+</div>
 <div class="field">
   <label>Endereço</label>
   <input 
@@ -78,13 +84,7 @@
   >
 </div>
 
-<div class="field">
-<label>Estabelecimento<span class="obrigatorio"> *</span></label>
-<div class="radio-group">
-<label><input type="radio" name="estabelecimento" value="Unidade Prisional" required> Unidade Prisional</label>
-<label><input type="radio" name="estabelecimento" value="Delegacia de Polícia" required> Delegacia de Polícia</label>
-</div>
-</div>
+
 
 
 <div class="field">
@@ -123,7 +123,7 @@
 
 <div class="field"><label>Data da visita<span class="obrigatorio"> *</span></label><input type="date" name="data_visita" required></div>
 
-<div class="field">
+<div class="field" id="bloco_acompanhou">
 <label>O responsável pela unidade acompanhou a visita<span class="obrigatorio"> *</span></label>
 <div class="radio-group">
 <label><input type="radio" name="acompanhou" value="Sim" required> Sim</label>
@@ -316,7 +316,7 @@
 </div>
 </div>
 
-<div class="field"><label>Quais estão instalados e/ou em funcionamento?<span class="obrigatorio"> *</span></label><input name="equipamentos" required></div>
+<div class="field"><label>Quais estão instalados e/ou em funcionamento?<span class="obrigatorio" > *</span></label><input name="equipamentos" id="equipamentos" ></div>
 
 <div class="field"><label>Existem sistemas de videomonitoramento na unidade?<span class="obrigatorio"> *</span></label>
 <div class="radio-group">
@@ -325,12 +325,12 @@
 </div>
 </div>
 
-<div class="field"><label>Abrangência do videomonitoramento<span class="obrigatorio"> *</span></label>
-<div class="radio-group">
-<label><input type="radio" name="abrangencia" value="Interno" required> Interno</label>
-<label><input type="radio" name="abrangencia" value="Externo" required> Externo</label>
-<label><input type="radio" name="abrangencia" value="Ambos" required> Ambos</label>
-</div>
+
+<div class="field">
+<label>Abrangência do videomonitoramento<span class="obrigatorio"> *</span></label>
+<select name="abrangencia" required>
+<option>Interno</option><option>Externo</option><option>Ambos</option>
+</select>
 </div>
 
 <div class="field"><label>Como é realizado o armazenamento de dados, áudios e imagens, periodicidade, qualidade, custódia e segurança?<span class="obrigatorio"> *</span></label><textarea name="armazenamento" required></textarea></div>
@@ -457,13 +457,13 @@
 
 <div class="field"><label>Há relatos de violação de direitos e/ou tortura?<span class="obrigatorio"> *</span></label><textarea name="violacao" required></textarea></div>
 
-<div class="field"><label>É necessário o sigilo das informações prestados pelos presos?<span class="obrigatorio"> *</span></label>
-<div class="radio-group">
-<label><input type="radio" name="sigilo" value="Sim" required> Sim</label>
-<label><input type="radio" name="sigilo" value="Não" required> Não</label>
-</div>
-</div>
 
+<div class="field">
+<label>É necessário o sigilo das informações prestados pelos presos?<span class="obrigatorio"> *</span></label>
+<select name="sigilo" required>
+<option>sim</option><option>não</option>
+</select>
+</div>
 <div class="field"><label>Existem Instrumentos de Menor Potencial Ofensivo - IMPO à disposição dos agentes de segurança (Lei nº 13.060/2014)<span class="obrigatorio"> *</span></label>
 <div class="radio-group">
 <label><input type="radio" name="impo" value="Sim" required> Sim</label>
