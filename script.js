@@ -1,475 +1,528 @@
-
-function toggleMenu(){
-
-    document
-    .getElementById("sidebar")
-    .classList
-    .toggle("active");
-}
-
-function goToStep(step){
-
-    i = step;
-
-    show();
-
-    document
-    .getElementById("sidebar")
-    .classList
-    .remove("active");
-}
-
-let i = 0;
-
-const steps = document.querySelectorAll(".step");
-
-const submitBtn = document.querySelector(".submit");
-
-const nextBtn = document.querySelector(".next");
-
-const prevBtn = document.querySelector(".prev");
-
-const okBox = document.getElementById("ok");
-
-function show(){
-
-    steps.forEach((s, idx)=>{
-
-        s.classList.toggle(
-            "active",
-            idx === i
-        );
-
-    });
-
-    prevBtn.style.visibility =
-        i === 0
-        ? "hidden"
-        : "visible";
-
-    nextBtn.style.display =
-        i === steps.length - 1
-        ? "none"
-        : "inline-block";
-
-    submitBtn.style.display =
-        i === steps.length - 1
-        ? "block"
-        : "none";
-}
-
-function next(){
-
-    if(i < steps.length - 1){
-
-        i++;
-
-        show();
-    }
-}
-
-function prev(){
-
-    if(i > 0){
-
-        i--;
-
-        show();
-    }
-}
-
-show();
-
-function fileToBase64(file){
-
-    return new Promise((resolve, reject)=>{
-
-        const reader = new FileReader();
-
-        reader.readAsDataURL(file);
-
-        reader.onload = ()=>{
-
-            resolve(reader.result);
-        };
-
-        reader.onerror = error=>{
-
-            reject(error);
-        };
-    });
-}
-
-async function enviarFormulario(){
-
-  const form = document.getElementById("form");
-
-if (!form.checkValidity()) {
-
-    // ativa destaque vermelho
-    form.classList.add("form-enviado");
-
-    irParaPrimeiroErro(form);
-
-    form.reportValidity();
-
-    return;
-}
-    okBox.style.display = "block";
-
-    okBox.style.background = "#fff3cd";
-
-    okBox.style.color = "#856404";
-
-    okBox.innerHTML = "⏳ Enviando formulário...";
-
-    submitBtn.disabled = true;
-
-    submitBtn.innerHTML = "Enviando...";
-
-    try{
-
-        const form =
-        document.getElementById("form");
-
-        const formData =
-        new FormData(form);
-
-        const jsonData = {};
-
-        for(const [key, value] of formData.entries()){
-
-            if(value instanceof File){
-
-                if(value.name !== ""){
-
-                    const base64 =
-                    await fileToBase64(value);
-
-                    jsonData[key] = {
-
-                        nomeArquivo:value.name,
-
-                        tipoArquivo:value.type,
-
-                        tamanhoArquivo:value.size,
-
-                        base64:base64
-                    };
-                }
-
-            }else{
-
-                jsonData[key] = value;
-            }
-        }
-      const { jsPDF } = window.jspdf;
-const pdf = new jsPDF();
-
-let y = 35;
-
-// ===== CABEÇALHO =====
-pdf.setFont("helvetica", "bold");
-pdf.setFontSize(14);
-
-pdf.text("MINISTÉRIO PÚBLICO", 105, 12, { align: "center" });
-pdf.text("RELATÓRIO DE INSPEÇÃO CARCERÁRIA", 105, 19, { align: "center" });
-
-pdf.setFontSize(10);
-pdf.setFont("helvetica", "normal");
-pdf.text("Documento gerado automaticamente pelo sistema", 105, 25, { align: "center" });
-
-pdf.line(10, 28, 200, 28);
-
-// ===== SEÇÕES =====
-const secoes = {
-    "1. IDENTIFICAÇÃO": ["membro_responsavel"],
-    "2. UNIDADE": ["estabelecimento","endereco","municipio","telefone","responsavel","cargo"],
-    "3. VISITA": ["data_visita","acompanhou","quem_acompanhou","cargo_acompanhante"],
-    "4. FUNCIONAMENTO": ["capacidade","total_presos","provisorios","definitivos"],
-    "5. ROTINAS": ["banho_sol","visita_familiar","visita_intima","educacao","trabalho"],
-    "6. SEGURANÇA": ["video","revista","visitantes","tornozeleira"],
-    "7. ALIMENTAÇÃO": ["refeicoes","terceirizado","reclamacoes","quais_reclam"],
-    "8. INSTALAÇÕES": ["ventilacao","iluminacao","agua","limpeza","esgoto"],
-    "9. AUDIÊNCIA": ["audiencia","violacao","sigilo","impo"],
-    "10. CONCLUSÃO": ["necessidades","consideracoes"]
-};
-
-// ===== TABELA =====
-function tabela(titulo, campos) {
-
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(12);
-
-    pdf.text(titulo, 14, y);
-    y += 4;
-
-    pdf.line(10, y, 200, y);
-    y += 5;
-
-    const body = [];
-
-    campos.forEach(key => {
-
-        if (!jsonData[key]) return;
-
-        let valor = jsonData[key];
-
-        if (typeof valor === "object") {
-            valor = JSON.stringify(valor);
-        }
-
-        body.push([
-            key,
-            valor
-        ]);
-    });
-
-    pdf.autoTable({
-        startY: y,
-        head: [["Campo", "Resposta"]],
-        body: body,
-        theme: "grid",
-        styles: { fontSize: 9 },
-        headStyles: { fillColor: [11, 94, 215], textColor: 255 },
-        margin: { left: 10, right: 10 },
-
-        didDrawPage: function (data) {
-            y = data.cursor.y + 5;
-        }
-    });
-}
-
-// ===== GERAR =====
-for (const secao in secoes) {
-    tabela(secao, secoes[secao]);
-}
-
-
-
-// ===== DOWNLOAD =====
-pdf.save("relatorio-inspecao.pdf");
-
-// ================= FIM PDF =================
-
-        console.log(jsonData);
-
-        const response = await fetch(
-
-            "https://default84a9248e396f44df84a94379e11007.ab.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/1552ec21b75e4a91a8efe46646df29cd/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=FM0vBZ2DznnnXSaICrqcIeeIRayGG94EzZSCnsjztp0",
-
-            {
-
-                method:"POST",
-
-                headers:{
-                    "Content-Type":"application/json"
-                },
-
-                body:JSON.stringify(jsonData)
-            }
-        );
-
-        let resposta = "";
-
-        try{
-
-            resposta =
-            await response.text();
-
-        }catch{
-
-            resposta =
-            "Sem resposta do servidor.";
-        }
-
-        if(response.ok){
-
-            okBox.style.background =
-            "#d1e7dd";
-
-            okBox.style.color =
-            "#0f5132";
-
-            okBox.innerHTML = `
-
-                <h3>
-                    ✔ Formulário enviado com sucesso
-                </h3>
-
-                <strong>Status:</strong>
-                ${response.status}
-
-                <br><br>
-
-                <strong>Resposta:</strong>
-
-                <pre>
-${resposta}
-                </pre>
-            `;
-
-            form.reset();
-
-            i = 0;
-
-            show();
-
-        }else{
-
-            okBox.style.background =
-            "#f8d7da";
-
-            okBox.style.color =
-            "#842029";
-
-            okBox.innerHTML = `
-
-                <h3>
-                    ❌ Erro ao enviar
-                </h3>
-
-                <strong>Status:</strong>
-                ${response.status}
-
-                <br><br>
-
-                <strong>Resposta:</strong>
-
-                <pre>
-${resposta}
-                </pre>
-            `;
-        }
-
-    }catch(error){
-
-        okBox.style.background =
-        "#f8d7da";
-
-        okBox.style.color =
-        "#842029";
-
-        okBox.innerHTML = `
-
-            <h3>
-                ❌ Erro de conexão
-            </h3>
-
-            ${error.message}
-        `;
-    }
-
-    submitBtn.disabled = false;
-
-    submitBtn.innerHTML = "Enviar";
-
-    function irParaPrimeiroErro(form) {
-
-    const invalid = form.querySelector(":invalid");
-
-    if (!invalid) return false;
-
-    const step = invalid.closest(".step");
-
-    if (step) {
-
-        const steps = document.querySelectorAll(".step");
-
-        steps.forEach((s, idx) => {
-
-            if (s === step) {
-
-                i = idx; // usa sua variável global
-                show();
-            }
-        });
-    }
-
-    invalid.focus();
-
-    return true;
-}
-}
-
-
-function mascaraTelefone(input) {
-    let v = input.value.replace(/\D/g, ''); // remove tudo que não é número
-
-    // celular (11 dígitos): (99) 99999-9999
-    if (v.length > 10) {
-        v = v.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
-    } 
-    // fixo (10 dígitos): (99) 9999-9999
-    else {
-        v = v.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
-    }
-
-    input.value = v;
-}
-
-function obrigarCampoQuandoSim(simRadio, naoRadio, campo) {
-
-    function atualizar() {
-
-        if (simRadio.checked) {
-            campo.required = true;
-            campo.placeholder = "Campo obrigatório";
-            campo.style.border = "2px solid #dc3545";
-        } else {
-            campo.required = false;
-            campo.placeholder = "";
-            campo.style.border = "1px solid #ccc";
-            campo.value = "";
-        }
-    }
-
-    simRadio.addEventListener("change", atualizar);
-    naoRadio.addEventListener("change", atualizar);
-
-    atualizar(); // inicializa
-}
-
-// 👇 chamadas ficam FORA da função
-obrigarCampoQuandoSim(
-    document.getElementById("sep_sim"),
-    document.getElementById("sep_nao"),
-    document.getElementById("razao")
-);
-
-obrigarCampoQuandoSim(
-    document.getElementById("reclam_sim"),
-    document.getElementById("reclam_nao"),
-    document.getElementById("quais")
-);
-
-obrigarCampoQuandoSim(
-    document.getElementById("torno_sim"),
-    document.getElementById("torno_nao"),
-    document.getElementById("justificativa")
-);
-obrigarCampoQuandoSim(
-    document.getElementById("fuga_sim"),
-    document.getElementById("fuga_nao"),
-    document.getElementById("fuga_detalhes")
-);
-
-
-
-const inputFile = document.getElementById("foto");
-
-inputFile.addEventListener("change", function () {
-
-    const file = this.files[0];
-
-    if (!file) return;
-
-    const maxSize = 10 * 1024 * 1024; // 10MB em bytes
-
-    if (file.size > maxSize) {
-
-        alert("Arquivo muito grande! Máximo permitido: 10MB");
-
-        this.value = ""; // limpa o campo
-    }
-});
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulário de Inspeção</title>
+
+</head>
+
+<body>
+<button class="menu-btn" onclick="toggleMenu()">☰ Seções</button>
+
+<div class="sidebar" id="sidebar">
+
+<h3>Seções</h3>
+
+<button onclick="goToStep(0)">1. Identificação</button>
+<button onclick="goToStep(1)">2. Unidade</button>
+<button onclick="goToStep(2)">3. Visita</button>
+<button onclick="goToStep(3)">4. Funcionamento</button>
+<button onclick="goToStep(4)">5. Rotinas</button>
+<button onclick="goToStep(5)">6. Segurança</button>
+<button onclick="goToStep(6)">7. Alimentação</button>
+<button onclick="goToStep(7)">8. Instalações</button>
+<button onclick="goToStep(8)">9. Audiência</button>
+<button onclick="goToStep(9)">10. Evolução</button>
+<button onclick="goToStep(10)">11. Conclusão</button>
+
+</div>
+<div class="container">
+
+<div class="header">
+    <img src="logo.png">
+    <h1>Formulário de Inspeção</h1>
+</div>
+
+<form id="form" onsubmit="return false;">
+
+<!-- ================= 1 ================= -->
+<div class="step active">
+<h2>1 – Identificação</h2>
+
+<div class="field">
+  <label>Responsável</label>
+  <input type="text" id="nome" list="listaNomes" autocomplete="off">
+  <datalist id="listaNomes"></datalist>
+</div>
+
+<div class="field">
+  <label>Email</label>
+  <input type="email" id="email">
+</div>
+</div>
+
+<!-- ================= 2 ================= -->
+<div class="step">
+<h2>2 – Dados da Unidade</h2>
+
+<div class="field">
+  <label>Município <span class="obrigatorio">*</span></label>
+  <input 
+    name="municipio" 
+    id="municipio" 
+    list="listaMunicipios" 
+    autocomplete="off"
+    required
+  >
+  <datalist id="listaMunicipios"></datalist>
+</div>
+
+<div class="field">
+  <label>Endereço</label>
+  <input 
+    name="endereco" 
+    id="endereco" 
+    readonly
+  >
+</div>
+
+<div class="field">
+<label>Estabelecimento<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="estabelecimento" value="Unidade Prisional" required> Unidade Prisional</label>
+<label><input type="radio" name="estabelecimento" value="Delegacia de Polícia" required> Delegacia de Polícia</label>
+</div>
+</div>
+
+
+<div class="field">
+  <label>Telefone<span class="obrigatorio"> *</span></label>
+  <input type="text" name="telefone" id="telefone"
+   placeholder="(92) 99999-9999"
+         maxlength="15"
+         oninput="mascaraTelefone(this)" required>
+</div>
+<div class="field"><label>Responsável<span class="obrigatorio"> *</span></label><input name="responsavel" required></div>
+<div class="field"><label>Cargo<span class="obrigatorio"> *</span></label><input name="cargo" required></div>
+
+<div class="field">
+<label>Quadro funcional da unidade<span class="obrigatorio"> *</span></label>
+<textarea name="quadro_funcional" required></textarea>
+</div>
+
+<div class="field">
+<label>Quadro funcional é suficiente?<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="quadro_suficiente" value="Sim" required> Sim</label>
+<label><input type="radio" name="quadro_suficiente" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field">
+<label>Providências a serem adotadas no âmbito do Procedimento Administrativo instaurado<span class="obrigatorio"> *</span></label>
+<textarea name="providencias_unidade" required></textarea>
+</div>
+
+</div>
+
+<!-- ================= 3 ================= -->
+<div class="step">
+<h2>3 – Dados da Visita</h2>
+
+<div class="field"><label>Data da visita<span class="obrigatorio"> *</span></label><input type="date" name="data_visita" required></div>
+
+<div class="field">
+<label>O responsável pela unidade acompanhou a visita<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="acompanhou" value="Sim" required> Sim</label>
+<label><input type="radio" name="acompanhou" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Quem acompanhou<span class="obrigatorio"> *</span></label><input name="quem_acompanhou" required></div>
+<div class="field"><label>Cargo de quem acompanhou:<span class="obrigatorio"> *</span></label><input name="cargo_acompanhante" required></div>
+
+</div>
+
+<!-- ================= 4 ================= -->
+<div class="step">
+<h2>4 – Funcionamento</h2>
+
+<div class="field"><label>Capacidade projetada para presos<span class="obrigatorio"> *</span></label><input type="number" name="capacidade" min="0" step="1" required></div>   
+<div class="field"><label>Quantitativo de presos no momento da visita<span class="obrigatorio"> *</span></label><input  type="number" name="total_presos" min="0" step="1" required></div>
+<div class="field"><label>Presos provisórios<span class="obrigatorio"> *</span></label><input type="number" name="provisorios" min="0" step="1" required></div>
+<div class="field"><label>Presos Definitivos<span class="obrigatorio"> *</span></label><input type="number" name="definitivos" min="0" step="1" required></div>
+<p>Grupos Vulneráveis</p>
+<div class="field"><label>Mulheres<span class="obrigatorio"> *</span></label><input type="number" name="mulheres" min="0" step="1" required></div>
+<div class="field"><label>Indígenas<span class="obrigatorio"> *</span></label><input type="number" name="indigenas" min="0" step="1" required></div>
+<div class="field"><label>LGBTQIAPN+<span class="obrigatorio"> *</span></label><input type="number" name="lgbt" min="0" step="1" required></div>
+
+<div class="field">
+  <label>Os presos estavam separados de acordo com gênero, a natureza do delito e indicativos de liderança de grupos faccionados?<span class="obrigatorio"> *</span></label>
+  <div class="radio-group">
+    <label><input type="radio" name="separacao" value="Sim" id="sep_sim" required> Sim</label>
+    <label><input type="radio" name="separacao" value="Não" id="sep_nao" required> Não</label>
+  </div>
+</div>
+
+<div class="field">
+  <label>Qual a razão?</label>
+  <textarea name="Razao_detalhes" id="razao" ></textarea>
+</div>
+
+<div class="field">
+<label>Houve registro de fuga no último mês?<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="fuga" value="Sim" id="fuga_sim" required> Sim</label>
+<label><input type="radio" name="fuga" value="Não" id="fuga_nao" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Descrição fuga</label><textarea name="fuga_detalhes" id="fuga_detalhes" ></textarea></div>
+
+<div class="field"><label>Informar as circunstâncias, providências adotadas e procedimentos instaurados:<span class="obrigatorio"> *</span></label><textarea name="circunstancias" required></textarea></div>
+<div class="field">
+
+<label>Aplica o Formulário Nacional de Avaliação de Risco  - FONAR<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="fonar" value="Sim" required> Sim</label>
+<label><input type="radio" name="fonar" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Providências adotadas durante a visita para aplicação do formulário<span class="obrigatorio"> *</span></label>
+<textarea name="fonar_prov" required></textarea>
+</div>
+
+<div class="field">
+<label>Aplica o Formulário Rogéria?<span class="obrigatorio"> *</span></label>
+<a>(Registro de Ocorrência Geral de Emergência e Risco às Pessoas LGBTQIAPN+)</a>
+<div class="radio-group">
+<label><input type="radio" name="rogeria" value="Sim" required> Sim</label>
+<label><input type="radio" name="rogeria" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Providências adotadas durante a visita para aplicação do formulário<span class="obrigatorio"> *</span></label><textarea name="rogeria_prov" required></textarea></div>
+
+<div class="field"><label>Quantidade de registros nos últimos 30 dias<span class="obrigatorio"> *</span></label><input type="number" name="registros30" min="0" step="1" required></div>
+
+<div class="field"><label>Providências imediatas adotadas durante a visita<span class="obrigatorio"> *</span></label><textarea name="prov_imediatas" required></textarea></div>
+
+<div class="field"><label>Providências a adotar no âmbito do Procedimento Administrativo instaurado<span class="obrigatorio"> *</span></label><textarea name="prov_admin_func" required></textarea></div>
+
+</div>
+
+<!-- ================= 5 ================= -->
+<div class="step">
+<h2>5 – Rotinas</h2>
+
+<div class="field"><label>Tem sido assegurado o direito ao banho de sol<span class="obrigatorio"> *</span> </label>
+<div class="radio-group">
+<label><input type="radio" name="banho_sol" value="Sim" required> Sim</label>
+<label><input type="radio" name="banho_sol" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field">
+<label>Frequência banho de sol<span class="obrigatorio"> *</span> </label>
+<select name="freq_banho" required>
+<option>Diária</option><option>Semanal</option><option>Quinzenal</option><option>Outros</option>
+</select>
+</div>
+
+<div class="field"><label>Tem sido assegurado o direito à visita de familiares:<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="visita_familiar" value="Sim" required> Sim</label>
+<label><input type="radio" name="visita_familiar" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field">
+<label>frequência de visitas <span class="obrigatorio"> *</span></label>
+<select name="freq_visitas" required>
+<option>Diária</option><option>Semanal</option><option>Quinzenal</option><option>Outros</option>
+</select>
+</div>
+
+<div class="field"><label>Tem sido assegurado o direito à visita íntima?<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="visita_intima" value="Sim" required> Sim</label>
+<label><input type="radio" name="visita_intima" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field">
+<label>frequência de visitas íntimas <span class="obrigatorio"> *</span></label>
+<select name="freq_visitas_intimas" required>
+<option>Diária</option><option>Semanal</option><option>Quinzenal</option><option>Outros</option>
+</select>
+</div>
+
+<div class="field"><label>Tem sido assegurado o direito à educação?<span class="obrigatorio"> *</span> </label>
+<div class="radio-group">
+<label><input type="radio" name="educacao" value="Sim" required> Sim</label>
+<label><input type="radio" name="educacao" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Tem sido assegurado o direito ao trabalho?<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="trabalho" value="Sim" required> Sim</label>
+<label><input type="radio" name="trabalho" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Tem sido assegurado o direito à remição de leitura?<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="remissao" value="Sim" required> Sim</label>
+<label><input type="radio" name="remissao" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Tem sido assegurado o direito à assistência à saúde?<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="saude" value="Sim" required> Sim</label>
+<label><input type="radio" name="saude" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Tem sido assegurado o direito à assistência religiosa?<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="religiosa" value="Sim" required> Sim</label>
+<label><input type="radio" name="religiosa" value="Não" required> Não</label>
+</div>
+</div>
+<div class="field">
+<label>frequência da assistência religiosa <span class="obrigatorio"> *</span></label>
+<select name="freq_religiosa" required>
+<option>Diária</option><option>Semanal</option><option>Quinzenal</option><option>Outros</option>
+</select>
+</div>
+
+<div class="field"><label>Providências imediatas adotadas durante a visita<span class="obrigatorio"> *</span> </label><textarea name="prov_rotinas" required></textarea></div>
+
+<div class="field"><label>Providências a adotar no âmbito do Procedimento Administrativo instaurado<span class="obrigatorio"> *</span> </label><textarea name="prov_rotinas_rotinas" required></textarea></div>
+
+</div>
+
+<!-- ================= 6 ================= -->
+<div class="step">
+<h2>6 – Segurança</h2>
+
+<div class="field"><label>Existem protocolos de ingresso de visitas com registro e identificação dos visitantes?<span class="obrigatorio"> *</span> </label>
+<div class="radio-group">
+<label><input type="radio" name="visitantes" value="Sim" required> Sim</label>
+<label><input type="radio" name="visitantes" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Existem procedimentos de revista com o uso de detector de metais, aparelhos de raio X e/ou body scanner?<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="revista" value="Sim" required> Sim</label>
+<label><input type="radio" name="revista" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Quais estão instalados e/ou em funcionamento?<span class="obrigatorio"> *</span></label><input name="equipamentos" required></div>
+
+<div class="field"><label>Existem sistemas de videomonitoramento na unidade?<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="video" value="Sim" required> Sim</label>
+<label><input type="radio" name="video" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Abrangência do videomonitoramento<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="abrangencia" value="Interno" required> Interno</label>
+<label><input type="radio" name="abrangencia" value="Externo" required> Externo</label>
+<label><input type="radio" name="abrangencia" value="Ambos" required> Ambos</label>
+</div>
+</div>
+
+<div class="field"><label>Como é realizado o armazenamento de dados, áudios e imagens, periodicidade, qualidade, custódia e segurança?<span class="obrigatorio"> *</span></label><textarea name="armazenamento" required></textarea></div>
+
+<div class="field"><label>Existe vigilância eletrônica de presos (tornozeleiras)?<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="tornozeleira" value="Sim" id="torno_sim" required> Sim</label>
+<label><input type="radio" name="tornozeleira" value="Não" id="torno_nao" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Justificativa</label><input name="justificativa" id="justificativa"></div>
+
+
+
+<div class="field"><label>Como é realizada a vigilância dos presos durante o período noturno?<span class="obrigatorio"> *</span></label><textarea name="noturna" required></textarea></div>
+
+<div class="field"><label>Providências imediatas adotadas durante a visita<span class="obrigatorio"> *</span></label><textarea name="prov_protoc" required></textarea></div>
+
+<div class="field"><label>Providências a adotar no âmbito do Procedimento Administrativo instaurado<span class="obrigatorio"> *</span></label><textarea name="prov_adotar_protoc" required></textarea></div>
+
+</div>
+
+<!-- ================= 7 ================= -->
+<div class="step">
+<h2>7 – Alimentação</h2>
+
+<div class="field"><label>Número de refeições diárias<span class="obrigatorio"> *</span></label><input type="number" name="refeicoes" min="0" step="1" required></div>
+
+<div class="field"><label>Fornecimento terceirizado:<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="terceirizado" value="Sim" required> Sim</label>
+<label><input type="radio" name="terceirizado" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Houve reclamações dos custodiados quanto a qualidade e/ou quantidade?<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="reclamacoes" value="Sim" id="reclam_sim" required> Sim</label>
+<label><input type="radio" name="reclamacoes" value="Não" id="reclam_nao" required > Não</label>
+</div>
+</div>
+
+<div class="field"><label>Quais reclamações?<span class="obrigatorio"> *</span></label><textarea name="quais_reclam" id="quais"  ></textarea></div>
+
+<div class="field"><label>Providências imediatas adotadas durante a visita:<span class="obrigatorio"> *</span></label><textarea name="prov_aliment" required></textarea></div>
+
+<div class="field"><label>Providências a adotar no âmbito do Procedimento Administrativo instaurado<span class="obrigatorio"> *</span></label><textarea name="prov_adotar_aliment" required></textarea></div>
+
+
+
+</div>
+
+<!-- ================= 8 ================= -->
+<div class="step">
+<h2>8 – Instalações</h2>
+
+<div class="field"><label>Ventilação adequada<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="ventilacao" value="Sim" required> Sim</label>
+<label><input type="radio" name="ventilacao" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Iluminação adequada<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="iluminacao" value="Sim" required> Sim</label>
+<label><input type="radio" name="iluminacao" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Água portável<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="agua" value="Sim" required> Sim</label>
+<label><input type="radio" name="agua" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Condições gerais de limpeza e conservação adequadas?<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="limpeza" value="Sim" required> Sim</label>
+<label><input type="radio" name="limpeza" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Sistema de esgotamento sanitário em funcionamento adequado?<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="esgoto" value="Sim" required> Sim</label>
+<label><input type="radio" name="esgoto" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Possui Auto de Vistoria do Corpo de Bombeiros (AVCB)?<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="avcb" value="Sim" required> Sim</label>
+<label><input type="radio" name="avcb" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Possui licença da Vigilância Sanitária?<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="sanitaria" value="Sim" required> Sim</label>
+<label><input type="radio" name="sanitaria" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Irregularidades constatadas nas instalações físicas? <span class="obrigatorio"> *</span></label><p>(infiltração, goteira, mofo, rachadura, desabamento, inadequação de espaço e etc)</p><textarea name="irregularidades" required></textarea></div>
+<div class="field"><label>Providências imediatas adotadas durante a visita<span class="obrigatorio"> *</span></label><textarea name="prov_intala" required></textarea></div>
+
+<div class="field"><label>Providências a adotar no âmbito do Procedimento Administrativo instaurado<span class="obrigatorio"> *</span></label><textarea name="prov_adotar_instala"></textarea></div>
+
+</div>
+
+<!-- ================= 9 ================= -->
+<div class="step">
+<h2>9 – Audiência</h2>
+
+<div class="field"><label>A audiência de custódia é realizada na Delegacia?<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="audiencia" value="Sim" required> Sim</label>
+<label><input type="radio" name="audiencia" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Há relatos de violação de direitos e/ou tortura?<span class="obrigatorio"> *</span></label><textarea name="violacao" required></textarea></div>
+
+<div class="field"><label>É necessário o sigilo das informações prestados pelos presos?<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="sigilo" value="Sim" required> Sim</label>
+<label><input type="radio" name="sigilo" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Existem Instrumentos de Menor Potencial Ofensivo - IMPO à disposição dos agentes de segurança (Lei nº 13.060/2014)<span class="obrigatorio"> *</span></label>
+<div class="radio-group">
+<label><input type="radio" name="impo" value="Sim" required> Sim</label>
+<label><input type="radio" name="impo" value="Não" required> Não</label>
+</div>
+</div>
+
+<div class="field"><label>Quais, quantos e quais condições de funcionamento?<span class="obrigatorio"> *</span></label><textarea name="det_impo" required></textarea></div>
+<div class="field"><label>Providências imediatas adotadas durante a visita:<span class="obrigatorio"> *</span></label><textarea name="prov_audiencia" required></textarea></div>
+
+<div class="field"><label>Providências a adotar no âmbito do Procedimento Administrativo instaurado<span class="obrigatorio"> *</span></label><textarea name="prov_adotar_audiencia" required></textarea></div>
+
+</div>
+
+<!-- ================= 10 ================= -->
+<div class="step">
+<h2>10 – Evolução</h2>
+
+<div class="field"><label>Data da última visita <span class="obrigatorio"> *</span></label><input type="date" name="ultima_visita" required></div>
+
+<div class="field"><label>Relatar o saneamento de irregularidades constatadas em visitas anteriores<span class="obrigatorio"> *</span></label><textarea name="melhorias" required></textarea></div>
+
+</div>
+
+<!-- ================= 11 ================= -->
+<div class="step">
+<h2>11 – Conclusão</h2>
+
+<div class="field"><label>Necessidades mais urgentes detectadas<span class="obrigatorio"> *</span></label><textarea name="necessidades" required></textarea></div>
+
+<div class="field"><label>Considerações finais<span class="obrigatorio"> *</span></label><textarea name="consideracoes" required></textarea></div>
+
+<div class="field"><label>Registro fotográfico<span class="obrigatorio"> *</span></label><p>Anexar fotografias das irregularidades eventualmente detectadas.
+(Para a visita do mês de março, observar o disposto no parágrafo único, do art. 5º, do Ato nº 002/2025/CGMP, de 10/10/2025)</p><input type="file" name="foto" id="foto" accept="image/*,application/pdf" required></div>
+
+</div>
+
+<!-- NAV -->
+<div class="nav">
+<button type="button" class="prev" onclick="prev()">Anterior</button>
+<button type="button" class="next" onclick="next()">Próximo</button>
+</div>
+
+<button
+    type="button"
+    class="submit"
+    onclick="enviarFormulario()">
+    Enviar
+</button>
+
+<div class="success" id="ok">✔ Enviado com sucesso</div>
+
+</form>
+
+</div>
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
