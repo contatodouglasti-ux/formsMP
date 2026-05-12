@@ -42,18 +42,41 @@
 <h2>1 – Identificação</h2>
 
 <div class="field">
-<label>Membro responsável<span class="obrigatorio"> *</span></label>
-<input name="membro_responsavel" required>
+  <label>Responsável</label>
+  <input type="text" id="nome" list="listaNomes" autocomplete="off">
+  <datalist id="listaNomes"></datalist>
 </div>
+
 <div class="field">
-<label>Email<span class="obrigatorio"> *</span></label>
-<input type="email" name="email" required>
+  <label>Email</label>
+  <input type="email" id="email">
 </div>
 </div>
 
 <!-- ================= 2 ================= -->
 <div class="step">
 <h2>2 – Dados da Unidade</h2>
+
+<div class="field">
+  <label>Município <span class="obrigatorio">*</span></label>
+  <input 
+    name="municipio" 
+    id="municipio" 
+    list="listaMunicipios" 
+    autocomplete="off"
+    required
+  >
+  <datalist id="listaMunicipios"></datalist>
+</div>
+
+<div class="field">
+  <label>Endereço</label>
+  <input 
+    name="endereco" 
+    id="endereco" 
+    readonly
+  >
+</div>
 
 <div class="field">
 <label>Estabelecimento<span class="obrigatorio"> *</span></label>
@@ -63,8 +86,7 @@
 </div>
 </div>
 
-<div class="field"><label>Endereço<span class="obrigatorio"> *</span></label><input name="endereco" required></div>
-<div class="field"><label>Município <span class="obrigatorio"> *</span></label><input name="municipio" required></div>
+
 <div class="field">
   <label>Telefone<span class="obrigatorio"> *</span></label>
   <input type="text" name="telefone" id="telefone"
@@ -416,7 +438,7 @@
 </div>
 
 <div class="field"><label>Irregularidades constatadas nas instalações físicas? <span class="obrigatorio"> *</span></label><p>(infiltração, goteira, mofo, rachadura, desabamento, inadequação de espaço e etc)</p><textarea name="irregularidades" required></textarea></div>
-<div class="field"><label>Providências imediatas adotadas durante a visita:</label><textarea name="prov_intala"></textarea></div>
+<div class="field"><label>Providências imediatas adotadas durante a visita<span class="obrigatorio"> *</span></label><textarea name="prov_intala" required></textarea></div>
 
 <div class="field"><label>Providências a adotar no âmbito do Procedimento Administrativo instaurado<span class="obrigatorio"> *</span></label><textarea name="prov_adotar_instala"></textarea></div>
 
