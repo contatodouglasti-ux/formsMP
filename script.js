@@ -16,7 +16,7 @@ function goToStep(step){
     document
     .getElementById("sidebar")
     .classList
-    .remove("active");
+    .remove("active");s
 }
 
 let i = 0;
