@@ -470,19 +470,6 @@ const secoes = {
         tabela(secao, secoes[secao]);
     }
 
-    // ===== RODAPÉ COM PÁGINAS =====
-    const totalPaginas = pdf.internal.getNumberOfPages();
-
-    for (let i = 1; i <= totalPaginas; i++) {
-        pdf.setPage(i);
-        pdf.setFontSize(8);
-        pdf.text(
-            `Página ${i} de ${totalPaginas}`,
-            200,
-            290,
-            { align: "right" }
-        );
-    }
 
     // ===== DOWNLOAD =====
     pdf.save("relatorio-inspecao.pdf");
